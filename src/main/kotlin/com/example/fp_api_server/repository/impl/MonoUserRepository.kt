@@ -1,5 +1,6 @@
 package com.example.fp_api_server.repository.impl
 
+import arrow.Kind
 import arrow.fx.reactor.ForMonoK
 import arrow.fx.reactor.MonoKOf
 import arrow.fx.reactor.k
@@ -21,9 +22,15 @@ class MonoUserRepository(
         }.subscribeOn(ioScheduler).k()
 
     override fun findAll(): MonoKOf<List<User>> =
-        Mono.fromCallable {
-            userJpaRepository.findAll()
-        }.subscribeOn(ioScheduler).k()
+        Mono.just(
+            listOf(
+                User(1, "qwe", 20),
+                User(2, "qwe", 20),
+                User(3, "qwe", 20),
+                User(4, "qwe", 20),
+                User(5, "qwe", 20)
+            )
+        ).k()
 
     override fun delete(id: Long): MonoKOf<Unit> =
         Mono.fromCallable {
@@ -39,6 +46,28 @@ class MonoUserRepository(
         Mono.fromCallable {
             userJpaRepository.save(user)
         }.subscribeOn(ioScheduler).map { Unit }.k()
+}
+
+class MockUserRepository : UserRepository<ForMonoK> {
+    override fun findById(id: Long): Kind<ForMonoK, Optional<User>> =
+        Mono.just(Optional.of(User(1, "asd", 30))).k()
+
+    override fun findAll(): Kind<ForMonoK, List<User>> =
+        Mono.just(
+            listOf(
+                User(1, "qwe", 20),
+                User(2, "qwe", 20),
+                User(3, "qwe", 20),
+                User(4, "qwe", 20),
+                User(5, "qwe", 20)
+            )
+        ).k()
+
+    override fun delete(id: Long): Kind<ForMonoK, Unit> = Mono.just(Unit).k()
+
+    override fun update(user: User): Kind<ForMonoK, Unit> = Mono.just(Unit).k()
+
+    override fun insert(user: User): Kind<ForMonoK, Unit> = Mono.just(Unit).k()
 }
 
 interface UserJpaRepository: JpaRepository<User, Long>
