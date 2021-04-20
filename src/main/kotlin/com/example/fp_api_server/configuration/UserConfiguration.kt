@@ -1,20 +1,17 @@
 package com.example.fp_api_server.configuration
 
-import arrow.fx.ForIO
-import arrow.fx.IO
 import arrow.fx.reactor.ForMonoK
 import arrow.fx.reactor.MonoK
-import com.example.fp_api_server.controller.UserController
+import arrow.fx.reactor.extensions.monok.async.async
+import com.example.fp_api_server.handler.UserHandler
 import com.example.fp_api_server.repository.UserRepository
-import com.example.fp_api_server.repository.impl.IOUserRepository
 import com.example.fp_api_server.repository.impl.MonoUserRepository
 import com.example.fp_api_server.repository.impl.UserJpaRepository
-import com.example.fp_api_server.typeclass.suspendable
+import com.example.fp_api_server.service.UserService
+import com.example.fp_api_server.service.UserServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
 
 @Configuration
 class UserConfiguration {
@@ -22,20 +19,16 @@ class UserConfiguration {
     private lateinit var userJpaRepository: UserJpaRepository
 
     @Bean
-    fun ioUserRepository(): UserRepository<ForIO> = IOUserRepository(userJpaRepository)
-
-    @Bean
     fun monoUserRepository(): UserRepository<ForMonoK> = MonoUserRepository(userJpaRepository)
 
-    @RestController
-    @RequestMapping("/users/io")
-    class IoUserController(
-        ioUserRepository: UserRepository<ForIO>
-    ) : UserController<ForIO>(IO.suspendable(), ioUserRepository)
+    @Bean
+    fun userService(): UserService<ForMonoK> =
+        UserServiceImpl(
+            A = MonoK.async(),
+            userRepository = monoUserRepository()
+        )
 
-    @RestController
-    @RequestMapping("/users/mono")
-    class MonoUserController(
-        monoUserRepository: UserRepository<ForMonoK>
-    ) : UserController<ForMonoK>(MonoK.suspendable(), monoUserRepository)
+    @Bean
+    fun userHandler(): UserHandler =
+        UserHandler(userService())
 }

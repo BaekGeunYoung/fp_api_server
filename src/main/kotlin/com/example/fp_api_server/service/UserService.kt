@@ -21,10 +21,7 @@ interface UserService<F> {
 class UserServiceImpl<F> (
     private val A: Async<F>,
     private val userRepository: UserRepository<F>,
-    private val userAsyncService: UserAsyncService
 ) : UserService<F>, Async<F> by A {
-    private val listTraverse = object : ListKTraverse {}
-
     override fun findById(id: Long): Kind<F, User> =
         userRepository.findById(id).map {
             if (it.isPresent) it.get()
@@ -46,21 +43,4 @@ class UserServiceImpl<F> (
 
     override fun insert(user: User): Kind<F, Unit> =
         userRepository.insert(user)
-
-    fun findAllAndDoSomething(): Kind<F, List<Long>> = listTraverse.run {
-        userRepository.findAll().map {
-            val result = mutableListOf<Long>()
-
-            it.forEach {
-                userAsyncService.doSomethingAsync(it).fix().unsafeRunAsync { either: Either<Throwable, Long> ->
-                    when (either) {
-                        is Either.Left -> throw either.a
-                        is Either.Right -> result.add(either.b)
-                    }
-                }
-            }
-
-            result
-        }
-    }
 }
