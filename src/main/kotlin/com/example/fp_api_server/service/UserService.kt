@@ -6,6 +6,7 @@ import arrow.core.Either
 import arrow.core.extensions.ListKTraverse
 import arrow.core.k
 import arrow.fx.typeclasses.Async
+import arrow.fx.typeclasses.Concurrent
 import com.example.fp_api_server.entity.User
 import com.example.fp_api_server.exception.EntityNotFoundException
 import com.example.fp_api_server.repository.UserRepository
