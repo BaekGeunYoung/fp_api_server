@@ -33,12 +33,12 @@ class UserServiceImpl<F> (
         userRepository.findAll()
 
     override fun delete(id: Long): Kind<F, Unit> =
-        userRepository.findById(id).flatMap {
+        findById(id).flatMap {
             userRepository.delete(id)
         }
 
     override fun update(user: User): Kind<F, Unit> =
-        userRepository.findById(user.id).flatMap {
+        findById(user.id).flatMap {
             userRepository.update(user)
         }
 
