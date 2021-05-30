@@ -3,6 +3,8 @@ package com.example.fp_api_server.configuration
 import arrow.fx.reactor.ForMonoK
 import arrow.fx.reactor.MonoK
 import arrow.fx.reactor.extensions.monok.async.async
+import com.example.fp_api_server.ConcurrentMappable
+import com.example.fp_api_server.MonoConcurrentMappable
 import com.example.fp_api_server.handler.UserHandler
 import com.example.fp_api_server.repository.UserJpaRepository
 import com.example.fp_api_server.repository.UserRepository
@@ -27,8 +29,12 @@ class UserConfiguration {
         UserRepositoryImpl(monoAsync, userJpaRepository)
 
     @Bean
+    fun concurrentMappable(): ConcurrentMappable<ForMonoK> =
+        MonoConcurrentMappable(monoAsync)
+
+    @Bean
     fun userService(): UserService<ForMonoK> =
-        UserServiceImpl(monoAsync, userRepository())
+        UserServiceImpl(monoAsync, concurrentMappable(), userRepository())
 
     @Bean
     fun userHandler(): UserHandler =
