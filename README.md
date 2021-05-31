@@ -232,3 +232,12 @@ class UserConfiguration {
 Configuration이 적용되고 나서야 우리가 작성한 코드들은 runtime에 Mono 의존성이 주입되어 우리가 원하는대로 동작하게 된다.
 
 만약 `Mono`를 `Observable`이나 `Future`로 바꾸고 싶다면 우리가 해야 할 것은 이 Configuration 파일 하나를 고치는게 끝이다. 아주 멋진 일이다!
+
+## 정리
+
+Reactor에서 외부 세계와 소통하는 Mono라는 객체를 F로 일반화할 수 있음을 보였고, arrow라는 라이브러리를 이용해 이 추상화된 F에 대해 일반적 프로그래밍을 하는 방법을 알아보았다.
+모든 code base archiecture의 핵심은 비즈니스 관심사와 기술 관심사를 엄격히 분리하는 것이라고 생각한다. 그런 측면에서 이 아키텍쳐는  순수하게 비즈니스 요구사항만을 표현하고 있어야 할 인터페이스에 Mono나 Observable 등 기술에 관한 내용이 들어가는 것을 차단하고, 그러한 기술에 관련된 것들은 어플리케이션의 가장 바깥쪽에 몰아넣음으로써 관심사의 분리라는 목표를 달성하고 있다.
+
+하지만 kotlin에서는 higher kinded type을 지원하지 않기 때문에 workaround하는 방법을 이용해야만 하고, 이는 실제 사용성과 코드 가독성을 많이 떨어뜨린다. 더군다나 kotlin에서는 coroutine suspend fun을 이용하면 외부 세계와 소통하는 함수를 그 어느 라이브러리의 도움도 받지 않고 순수하게 표현할 수 있기 때문에 이 아키텍쳐의 의미가 희석된다.
+
+결론: Scala나 Haskell 등에서는 유효한 아키텍쳐일지 모르지만, kotlin에서는 coroutine을 쓰는게 베스트다..
